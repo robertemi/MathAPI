@@ -3,6 +3,7 @@ from psycopg2 import pool
 from dotenv import load_dotenv
 import os
 from urllib.parse import urlparse
+import redis
 
 load_dotenv()
 
@@ -38,6 +39,8 @@ def get_db_connection():
         print(f"Connection check failed: {e}")
         raise
 
+def get_redis_client():
+    return redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
 def return_db_connection(conn):
     """Return connection to the pool"""

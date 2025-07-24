@@ -1,10 +1,10 @@
-import psycopg2
 from models.MathAPI import MathAPI
+import json
 
 
 class Fibbonaci(MathAPI):
     def __init__(self):
-        super(MathAPI)
+        super().__init__()
 
     '''
     Computes the n_th fibbonaci number
@@ -25,13 +25,22 @@ class Fibbonaci(MathAPI):
 
     @classmethod
     def save(cls, conn, method, status_code, request_body, response_body):
+        print(f'Received-> method: {method}, status_code: {status_code},'
+              'request_body: {request_body}, response_body :{response_body}')
         try:
             with conn.cursor() as cur:
                 cur.execute(
                     'INSERT INTO api_requests '
-                    '(method, status_code, request_body, response_body, operation)'
+                    '(method, status_code, request_body, '
+                    'response_body, operation)'
                     'VALUES (%s, %s, %s, %s, %s) RETURNING id',
-                    (method, status_code, request_body, response_body, 'Fibbonaci')
+                    (
+                        method,
+                        status_code,
+                        json.dumps(request_body),
+                        json.dumps(response_body),
+                        'Fibbonaci'
+                    )
                 )
                 result = cur.fetchone()
                 if not result:
@@ -41,8 +50,6 @@ class Fibbonaci(MathAPI):
                 request_id = result[0]
                 conn.commit()
                 print(f"Successfully saved fibbonaci request: {request_id}")
-        except psycopg2.Error as e:
+        except Exception as e:
             conn.rollback()
-            print(f"Database error in Fibbonaci.save(): {e.pgerror}")
-            print(f"Database error code: {e.pgcode}")
-            return None
+            print(f"General error in Power.save(): {e}")
