@@ -4,8 +4,6 @@ from config import Config, get_db_connection, return_db_connection, get_redis_cl
 from controllers.MathController import MathController
 from schemas import FactorialRequest, PowerRequest, FibbonaciRequest
 from pydantic import ValidationError
-from werkzeug.security import check_password_hash
-from models.User import User
 from controllers.UserController import UserController
 
 
@@ -20,7 +18,6 @@ def create_app(config=Config):
          methods=['POST'],
          allow_headers=['Content-Type'],
          supports_credentials=False)
-    
 
     @app.route(rule='/auth', methods=['POST'])
     def auth_user():
@@ -51,7 +48,6 @@ def create_app(config=Config):
         finally:
             return_db_connection(db_connection)
 
-
     @app.route(rule='/sign-up', methods=['POST'])
     def sign_up_user():
         db_connection = get_db_connection()
@@ -61,7 +57,7 @@ def create_app(config=Config):
 
             if not data or 'first_name' not in data or 'last_name' not in data or 'email' not in data or 'password' not in data:
                 return jsonify({"error": "Missing required fields"}), 400
-            
+
             first_name = data['first_name']
             last_name = data['last_name']
             email = data['email']
@@ -69,7 +65,7 @@ def create_app(config=Config):
             role = data.get('role')
 
             success = controller.handle_user_sign_up(
-                db_connection, 
+                db_connection,
                 first_name,
                 last_name,
                 email,
@@ -81,7 +77,7 @@ def create_app(config=Config):
                 return jsonify({"message": "User created successfully"}), 201
             else:
                 return jsonify({"error": "User could not be created"}), 500
-            
+
         except Exception as e:
             print(f'Exception in user creation app.py: {e}')
         
@@ -104,7 +100,7 @@ def create_app(config=Config):
                 validated = FibbonaciRequest(**data).model_dump()
             else:
                 return jsonify({"error": f"Unsupported operation: {operation}"}), 400
-            
+
             result = controller.handle_request(
                 db_connection,
                 operation,

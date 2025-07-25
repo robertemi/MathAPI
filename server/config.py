@@ -18,7 +18,7 @@ DB_CONFIG = {
     "port": parsed_url.port,
 }
 
-# Connection pool 
+# Connection pool
 connection_pool = psycopg2.pool.SimpleConnectionPool(
     minconn=1,
     maxconn=20,
