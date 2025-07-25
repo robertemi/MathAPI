@@ -9,4 +9,4 @@ class PowerRequest(BaseModel):
     power: int
 
 class FibbonaciRequest(BaseModel):
-    number: int = Field(..., ge=0)
+    number: int = Field(..., ge=1)
