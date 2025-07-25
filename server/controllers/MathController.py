@@ -1,18 +1,18 @@
 from models.Factorial import Factorial
 from models.Fibbonaci import Fibbonaci
 from models.Power import Power
+from models.User import User
 
 class MathController:
-    def __init__(self, db_connection, redis_client):
+    def __init__(self, redis_client):
         self.operations = {
             "factorial": Factorial(),
             "fibbonaci": Fibbonaci(),
             "power": Power()
         }
-        self.db_connection = db_connection
         self.redis_client = redis_client
 
-    def handle_request(self, operation: str, **inputs):
+    def handle_request(self, db_connection, operation: str, **inputs):
         try:
             operator = self.operations[operation.lower()]
             cache_key = f'{operation}:{inputs}'
@@ -37,7 +37,7 @@ class MathController:
             
             # persist API call to DB
             operator.save(
-                conn=self.db_connection,
+                conn=db_connection,
                 method='POST',
                 status_code=200,
                 request_body=inputs,
@@ -55,6 +55,8 @@ class MathController:
                     response_body={"error": str(e)}
                 )
             raise
+    
+
 
         
     
