@@ -1,6 +1,6 @@
-const API = "http://localhost:5000";
+const API = "http://localhost:8000";
 
-// protect index.html
+// protect math operations page
 if (window.location.pathname.endsWith("index.html") && !localStorage.getItem("authenticated")) {
   window.location.href = "auth.html";
 }
@@ -20,10 +20,10 @@ if (signUpForm) {
     const result = await res.json();
     document.getElementById("signUpResponse").textContent = result.message || result.error;
 
-    if (res.status === 201) {
+    if (res.ok) {
       localStorage.setItem("authenticated", "true");
       setTimeout(() => (window.location.href = "index.html"), 1000);
-    }
+}
   });
 }
 
@@ -42,7 +42,7 @@ if (authForm) {
     const result = await res.json();
     document.getElementById("authResponse").textContent = result.message || result.error;
 
-    if (res.status === 201) {
+    if (res.ok) {
       localStorage.setItem("authenticated", "true");
       setTimeout(() => (window.location.href = "index.html"), 1000);
     }
@@ -63,11 +63,16 @@ if (mathForm) {
     e.preventDefault();
     const formData = new FormData(mathForm);
     const operation = formData.get("operation");
-    const number = Number(formData.get("number"));
-    const payload = { number };
+    
+    let payload;
 
     if (operation === "power") {
-      payload.power = Number(formData.get("power"));
+      payload = {
+        base: Number(formData.get("number")),
+        exponent: Number(formData.get("power"))
+      };
+    } else {
+      payload = { number: Number(formData.get("number")) };
     }
 
     const res = await fetch(`${API}/compute/${operation}`, {
@@ -77,7 +82,9 @@ if (mathForm) {
     });
 
     const result = await res.json();
-    responseBox.textContent = result.result !== undefined ? `Result: ${result.result}` : `Error: ${result.error}`;
+    responseBox.textContent = result.result !== undefined
+      ? `Result: ${result.result}`
+      : `Error: ${result.error || "Invalid input"}`;
   });
 }
 
